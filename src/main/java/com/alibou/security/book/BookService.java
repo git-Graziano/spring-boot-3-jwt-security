@@ -23,4 +23,12 @@ public class BookService {
     public List<Book> findAll() {
         return repository.findAll();
     }
+
+    public Book update(Integer id, BookRequest request) {
+        // TODO: define runtime exception
+        var book = repository.findById(id).orElseThrow();
+        book.setAuthor(request.getAuthor());
+        book.setIsbn(request.getIsbn());
+        return repository.save(book);
+    }
 }

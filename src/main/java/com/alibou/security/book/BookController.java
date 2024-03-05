@@ -2,11 +2,7 @@ package com.alibou.security.book;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,5 +24,13 @@ public class BookController {
     @GetMapping
     public ResponseEntity<List<Book>> findAllBooks() {
         return ResponseEntity.ok(service.findAll());
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Book> update(
+            @PathVariable Integer id,
+            @RequestBody BookRequest request
+    ) {
+        return ResponseEntity.ok(service.update(id, request));
     }
 }

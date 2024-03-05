@@ -2,7 +2,6 @@ package com.alibou.security;
 
 import com.alibou.security.auth.AuthenticationService;
 import com.alibou.security.auth.RegisterRequest;
-import com.alibou.security.user.Role;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,24 +24,23 @@ public class SecurityApplication {
 			AuthenticationService service
 	) {
 		return args -> {
-			var admin = RegisterRequest.builder()
-					.firstname("Admin")
-					.lastname("Admin")
-					.email("admin@mail.com")
-					.password("password")
-					.role(ADMIN)
-					.build();
-			System.out.println("Admin token: " + service.register(admin).getAccessToken());
+			var admin = new RegisterRequest(
+					"Admin",
+					"Admin",
+					"admin@mail.com",
+					"password",
+					ADMIN
+			);
+			service.register(admin);
 
-			var manager = RegisterRequest.builder()
-					.firstname("Admin")
-					.lastname("Admin")
-					.email("manager@mail.com")
-					.password("password")
-					.role(MANAGER)
-					.build();
-			System.out.println("Manager token: " + service.register(manager).getAccessToken());
-
+			var manager = new RegisterRequest(
+					"Manager",
+					"Manager",
+					"manager@mail.com",
+					"password",
+					MANAGER
+			);
+			service.register(manager);
 		};
 	}
 }
