@@ -15,6 +15,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.OffsetDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -30,10 +32,16 @@ public class Token {
   public String token;
 
   @Enumerated(EnumType.STRING)
-  public TokenType tokenType = TokenType.BEARER;
+  public TokenType tokenType = TokenType.ACCESS;
 
+  public OffsetDateTime issued_at;
+
+  public OffsetDateTime expired_at;
+
+  @Deprecated
   public boolean revoked;
 
+  @Deprecated
   public boolean expired;
 
   @ManyToOne(fetch = FetchType.LAZY)

@@ -18,12 +18,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
-  @Value("${application.security.jwt.secret-key}")
-  private String secretKey;
-  @Value("${application.security.jwt.expiration}")
-  private long jwtExpiration;
-  @Value("${application.security.jwt.refresh-token.expiration}")
-  private long refreshExpiration;
+  @Value("${application.security.jwt.access.secret-key}")
+  private String accessSecretKey;
+  @Value("${application.security.jwt.access.expiration}")
+  private long accessJwtExpiration;
+  @Value("${application.security.jwt.refresh.secret-key}")
+  private String refreshSecretKey;
+  @Value("${application.security.jwt.refresh.expiration}")
+  private long refreshJwtExpiration;
 
   public String extractUsername(String token) {
     return extractClaim(token, Claims::getSubject);
@@ -42,18 +44,19 @@ public class JwtService {
       Map<String, Object> extraClaims,
       UserDetails userDetails
   ) {
-    return buildToken(extraClaims, userDetails, jwtExpiration);
+    return buildToken(extraClaims, userDetails, accessSecretKey, accessJwtExpiration);
   }
 
   public String generateRefreshToken(
       UserDetails userDetails
   ) {
-    return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+    return buildToken(new HashMap<>(), userDetails, accessSecretKey, refreshJwtExpiration);
   }
 
   private String buildToken(
           Map<String, Object> extraClaims,
           UserDetails userDetails,
+          String secretKey,
           long expiration
   ) {
     return Jwts
@@ -88,8 +91,8 @@ public class JwtService {
         .getBody();
   }
 
-  private Key getSignInKey() {
-    byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+  private Key  getSignInKey() {
+    byte[] keyBytes = Decoders.BASE64.decode(accessSecretKey);
     return Keys.hmacShaKeyFor(keyBytes);
   }
 }

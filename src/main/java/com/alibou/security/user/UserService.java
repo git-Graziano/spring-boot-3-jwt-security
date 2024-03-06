@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
@@ -31,5 +32,17 @@ public class UserService {
 
         // save the new password
         repository.save(user);
+    }
+
+    public void addPasswordRecovery(PasswordRecovery passwordRecovery) {
+
+    }
+
+    public boolean removePasswordRecovery(PasswordRecovery passwordRecovery) {
+        return false;
+    }
+
+    public boolean removePasswordReoveryIf(Predicate<? super PasswordRecovery> predicate) {
+        return false;
     }
 }

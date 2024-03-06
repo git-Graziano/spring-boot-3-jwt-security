@@ -1,9 +1,12 @@
 package com.alibou.security.auth;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,14 +15,16 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.Objects;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(
+        origins = "http://localhost:5173",
+        exposedHeaders = {"Access-Control-Allow-Origin","Access-Control-Allow-Credentials"}
+)
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
   private final AuthenticationService service;
-
 
   @PostMapping("/register")
   public ResponseEntity<RegisterResponse> register(
@@ -32,21 +37,70 @@ public class AuthenticationController {
 //    }
     return ResponseEntity.ok(service.register(request));
   }
-  @CrossOrigin(exposedHeaders = {"Access-Control-Allow-Origin","Access-Control-Allow-Credentials"})
+
+  public record AccessToken(@JsonProperty("access_token") String token){}
   @PostMapping("/authenticate")
-  public ResponseEntity<AuthenticationResponse> authenticate(
-      @RequestBody AuthenticationRequest request
-  ) {
-    return ResponseEntity.ok(service.authenticate(request));
-  }
-
-  @PostMapping("/refresh-token")
-  public void refreshToken(
-      HttpServletRequest request,
+  public ResponseEntity<AccessToken> authenticate(
+      @RequestBody AuthenticationRequest request,
       HttpServletResponse response
-  ) throws IOException {
-    service.refreshToken(request, response);
+  ) {
+    var auth = service.authenticate(request);
+    Cookie cookie = new Cookie("refresh_token", auth.getRefreshToken());
+    cookie.setMaxAge(3600);
+    cookie.setHttpOnly(true);
+    cookie.setPath("/api");
+
+    response.addCookie(cookie);
+
+    return ResponseEntity.ok(new AccessToken(auth.getAccessToken()));
   }
 
+  public record RefreshTokenResponse(@JsonProperty("access_token") String token){}
+  @PostMapping("/refresh-token")
+  public RefreshTokenResponse refreshToken(
+          @CookieValue("refresh_token") String refreshToken,
+          HttpServletRequest request,
+          HttpServletResponse response
+  ) throws IOException {
+
+    var auth = service.refreshToken(refreshToken, request);
+
+    Cookie cookie = new Cookie("refresh_token", auth.getRefreshToken());
+    cookie.setMaxAge(3600);
+    cookie.setHttpOnly(true);
+    cookie.setPath("/api");
+
+    return new RefreshTokenResponse(auth.getAccessToken());
+  }
+
+  public record LogoutResponse(String message){};
+  @PostMapping("/logout")
+  public LogoutResponse logout(
+          @CookieValue("refresh_token") String refreshToken,
+          HttpServletResponse response
+  ) {
+
+    //TODO: service delete tokens in db
+    service.deleteToken(refreshToken);
+
+    Cookie cookie = new Cookie("refresh_token", null);
+    cookie.setMaxAge(0);
+    cookie.setHttpOnly(true);
+
+    response.addCookie(cookie);
+    return new LogoutResponse("success");
+  }
+
+  public record ForgotRequest(String email) {}
+  public record ForgotResponse(String message){}
+  @PostMapping("/forgot")
+  public ForgotResponse forgot(
+          @RequestBody ForgotRequest forgotRequest,
+          HttpServletRequest request) {
+    var originUrl = request.getHeader("Origin");
+    service.forgot(forgotRequest.email(), originUrl);
+    return new ForgotResponse("success");
+
+  }
 
 }
