@@ -1,26 +1,20 @@
 package com.alibou.security.auth;
 
-import com.alibou.security.user.Role;
-import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 public record RegisterRequest (
-    @NotBlank
-    @JsonProperty("first_name")
+    @NotBlank(message = "Nome non valido")
+    @JsonProperty("firstname")
     String firstname,
 
-    @NotBlank
-    @JsonProperty("last_name")
+    @NotBlank(message = "Cognome non valido")
+    @JsonProperty("lastname")
     String lastname,
-    @Email
+    @Email(message = "Indirizzo di posta elettronica non valido")
     String email,
-    @NotBlank
+    @NotBlank(message = "Password non valida")
     String password,
-    Role role
+    String role
 ){}

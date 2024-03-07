@@ -1,50 +1,44 @@
 package com.alibou.security.token;
 
 import com.alibou.security.user.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "spn_token")
 public class Token {
 
   @Id
-  @GeneratedValue
-  public Integer id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "ID")
+  private Integer id;
 
-  @Column(unique = true)
-  public String token;
+  @Column(name = "TOKEN")
+  private String token;
 
+  @Column(name = "TYPE")
   @Enumerated(EnumType.STRING)
-  public TokenType tokenType = TokenType.ACCESS;
+  private TokenType type = TokenType.ACCESS;
 
-  public OffsetDateTime issued_at;
+  @Column(name = "ISSUED_AT")
+  private LocalDateTime issuedAt;
 
-  public OffsetDateTime expired_at;
+  @Column(name = "EXPIRED_AT")
+  private LocalDateTime expiredAt;
 
-  @Deprecated
-  public boolean revoked;
-
-  @Deprecated
-  public boolean expired;
+  @Column(name = "EXPIRED")
+  private Boolean expired;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  public User user;
+  private User user;
 }

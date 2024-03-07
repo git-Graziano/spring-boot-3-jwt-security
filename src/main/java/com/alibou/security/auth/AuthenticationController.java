@@ -6,14 +6,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.Objects;
 
 @CrossOrigin(
         origins = "http://localhost:5173",
@@ -32,7 +28,7 @@ public class AuthenticationController {
   ) {
 
     // exception handling
-//    if(!Objects.equals(request.password(), request.lastname())){
+//     if(!Objects.equals(request.password(), request.lastname())){
 //       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password do not match");
 //    }
     return ResponseEntity.ok(service.register(request));
@@ -80,8 +76,7 @@ public class AuthenticationController {
           HttpServletResponse response
   ) {
 
-    //TODO: service delete tokens in db
-    service.deleteToken(refreshToken);
+    //TODO: service delete or expires tokens in db
 
     Cookie cookie = new Cookie("refresh_token", null);
     cookie.setMaxAge(0);

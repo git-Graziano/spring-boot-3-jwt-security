@@ -3,9 +3,9 @@ package com.alibou.security.auth;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record RegisterResponse(
-        @JsonProperty("first_name")
+        @JsonProperty("firstname")
         String firstname,
-        @JsonProperty("last_name")
+        @JsonProperty("lastname")
         String lastname,
         String email
 )

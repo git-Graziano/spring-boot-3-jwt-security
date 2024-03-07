@@ -5,15 +5,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
@@ -40,7 +40,7 @@ public class JwtService {
     return generateToken(new HashMap<>(), userDetails);
   }
 
-  public String generateToken(
+  private String generateToken(
       Map<String, Object> extraClaims,
       UserDetails userDetails
   ) {
@@ -60,13 +60,13 @@ public class JwtService {
           long expiration
   ) {
     return Jwts
-            .builder()
-            .setClaims(extraClaims)
-            .setSubject(userDetails.getUsername())
-            .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + expiration))
-            .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-            .compact();
+          .builder()
+          .setClaims(extraClaims)
+          .setSubject(userDetails.getUsername())
+          .setIssuedAt(new Date(System.currentTimeMillis()))
+          .setExpiration(new Date(System.currentTimeMillis() + expiration))
+          .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+          .compact();
   }
 
   public boolean isTokenValid(String token, UserDetails userDetails) {

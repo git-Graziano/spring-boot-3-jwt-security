@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,31 +22,46 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_user")
+@Table(name = "spn_user")
 public class User implements UserDetails {
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "ID")
   private Integer id;
+
+  @Column(name = "FIRST_NAME")
   private String firstname;
+
+  @Column(name = "LAST_NAME")
   private String lastname;
 
-  @Column(unique = true)
+  @Column(name = "EMAIL", unique = true)
   private String email;
+
+  @Column(name = "PASSWORD")
   private String password;
 
-  @Enumerated(EnumType.STRING)
-  private Role role;
+  @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JoinTable(
+          name = "spn_user_authority",
+          joinColumns = { @JoinColumn(name = "user_id") },
+          inverseJoinColumns = { @JoinColumn(name = "authority_id") }
+  )
+  private Set<Authority> roles = new HashSet<>();
 
   @OneToMany(mappedBy = "user")
   private List<Token> tokens;
 
-  @OneToMany(mappedBy = "user")
-  private List<PasswordRecovery> passwordRecovery;
+//  @OneToMany(mappedBy = "spn_user")
+//  private List<PasswordRecovery> passwordRecovery;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return role.getAuthorities();
+    return getRoles()
+            .stream()
+            .map(permission -> new SimpleGrantedAuthority(permission.getName()))
+            .collect(Collectors.toList());
   }
 
   @Override

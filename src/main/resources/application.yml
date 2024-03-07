@@ -1,18 +1,18 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/jwt_security
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:mysql://localhost:3306/lis
+    username: root
+    password: s3k.Mysql
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     show-sql: false
     properties:
       hibernate:
         format_sql: true
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
   mail:
     host: 0.0.0.0
     port: 1025
@@ -22,9 +22,9 @@ application:
     jwt:
       access:
         secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-        expiration: 86400000 # a day
+        expiration: 300000 # 5 minutes - 86400000 # a day
       refresh:
         secret-key: 4A4E605266556A586E3272357538782F413F4428472B4B62503353672E6B5970
-        expiration: 604800000 # 7 days
+        expiration: 600000 # - 10 min - 3600000 # 1 hour - 604800000 # 7 days
   frontend:
     default-url: boh
