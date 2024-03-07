@@ -1,12 +1,14 @@
 package com.alibou.security.config;
 
 import com.alibou.security.token.TokenRepository;
+import com.alibou.security.token.TokenType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
@@ -47,11 +49,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     userEmail = jwtService.extractUsername(jwt);
     if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
       UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-//      var isTokenValid = tokenRepository.findByTokenAndType(jwt, TokenType.ACCESS)
-//          .map(t -> !t.getExpiredAt().isBefore(LocalDateTime.now()))
-//          .orElse(false);
-//      if (jwtService.isTokenValid(jwt, userDetails) && isTokenValid) {
-      if (jwtService.isTokenValid(jwt, userDetails)) {
+      var isTokenValid = tokenRepository.findByTokenAndType(jwt, TokenType.ACCESS)
+          .map(t -> !t.getExpiredAt().isBefore(LocalDateTime.now()) && t.getAllowed())
+          .orElse(false);
+      if (jwtService.isTokenValid(jwt, userDetails) && isTokenValid) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
             userDetails,
             null,

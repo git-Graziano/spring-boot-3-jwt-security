@@ -22,9 +22,9 @@ application:
     jwt:
       access:
         secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-        expiration: 300000 # 5 minutes - 86400000 # a day
+        expiration: 300 # 5 minutes - 86400000 # a day
       refresh:
         secret-key: 4A4E605266556A586E3272357538782F413F4428472B4B62503353672E6B5970
-        expiration: 600000 # - 10 min - 3600000 # 1 hour - 604800000 # 7 days
+        expiration: 600 # - 10 min - 3600000 # 1 hour - 604800000 # 7 days
   frontend:
     default-url: boh

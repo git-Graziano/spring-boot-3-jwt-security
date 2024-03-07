@@ -1,5 +1,6 @@
 package com.alibou.security.config;
 
+import com.alibou.security.token.JwtToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,37 +39,53 @@ public class JwtService {
     return claimsResolver.apply(claims);
   }
 
-  public String generateToken(UserDetails userDetails) {
+  public JwtToken generateToken(UserDetails userDetails) {
     return generateToken(new HashMap<>(), userDetails);
   }
 
-  private String generateToken(
+  private JwtToken generateToken(
       Map<String, Object> extraClaims,
       UserDetails userDetails
   ) {
     return buildToken(extraClaims, userDetails, accessSecretKey, accessJwtExpiration);
   }
 
-  public String generateRefreshToken(
+  public JwtToken generateRefreshToken(
       UserDetails userDetails
   ) {
     return buildToken(new HashMap<>(), userDetails, accessSecretKey, refreshJwtExpiration);
   }
 
-  private String buildToken(
+  private JwtToken buildToken(
           Map<String, Object> extraClaims,
           UserDetails userDetails,
           String secretKey,
           long expiration
   ) {
-    return Jwts
+
+    var iatLocalDateTime = LocalDateTime.now();
+    var expLocalDateTime = LocalDateTime.now().plusSeconds(expiration);
+    Date iatDate = Date.from(iatLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    Date expDate = Date.from(expLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+    //original
+//          .setIssuedAt(new Date(System.currentTimeMillis()))
+//          .setExpiration(new Date(System.currentTimeMillis() + expiration))
+
+    String token = Jwts
           .builder()
           .setClaims(extraClaims)
           .setSubject(userDetails.getUsername())
-          .setIssuedAt(new Date(System.currentTimeMillis()))
-          .setExpiration(new Date(System.currentTimeMillis() + expiration))
+          .setIssuedAt(iatDate)
+          .setExpiration(expDate)
           .signWith(getSignInKey(), SignatureAlgorithm.HS256)
           .compact();
+
+    return JwtToken.builder()
+            .issuedAt(iatLocalDateTime)
+            .expiredAt(expLocalDateTime)
+            .token(token)
+            .build();
   }
 
   public boolean isTokenValid(String token, UserDetails userDetails) {

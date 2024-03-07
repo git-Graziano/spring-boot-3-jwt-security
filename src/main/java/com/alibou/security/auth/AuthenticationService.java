@@ -2,6 +2,7 @@ package com.alibou.security.auth;
 
 import com.alibou.security.config.JwtService;
 import com.alibou.security.email.MailService;
+import com.alibou.security.token.JwtToken;
 import com.alibou.security.token.Token;
 import com.alibou.security.token.TokenRepository;
 import com.alibou.security.token.TokenType;
@@ -73,12 +74,12 @@ public class AuthenticationService {
     saveUserToken(user, accessToken, TokenType.ACCESS);
     saveUserToken(user, refreshToken, TokenType.REFRESH);
     return AuthenticationResponse.builder()
-        .accessToken(accessToken)
-            .refreshToken(refreshToken)
+        .accessToken(accessToken.getToken())
+            .refreshToken(refreshToken.getToken())
         .build();
   }
 
-  private void saveUserToken(User user, String token, TokenType type) {
+  private void saveUserToken(User user, JwtToken token, TokenType type) {
 
     // get user token if exists
     var optToken = tokenRepository.findByUserAndType(user, type);
@@ -89,7 +90,9 @@ public class AuthenticationService {
       tokenEntity = Token.builder()
               .user(user)
               .type(type)
-              .token(token)
+              .token(token.getToken())
+              .issuedAt(token.getIssuedAt())
+              .expiredAt(token.getExpiredAt())
               .allowed(true)
               .build();
     }
@@ -99,7 +102,9 @@ public class AuthenticationService {
 
       // update existing token
       tokenEntity = optToken.get();
-      tokenEntity.setToken(token);
+      tokenEntity.setToken(token.getToken());
+      token.setIssuedAt(token.getIssuedAt());
+      token.setExpiredAt(token.getExpiredAt());
     }
     tokenRepository.save(tokenEntity);
   }
@@ -123,7 +128,7 @@ public class AuthenticationService {
         var accessToken = jwtService.generateToken(user);
         //saveUserToken(user, accessToken);
         var authResponse = AuthenticationResponse.builder()
-                .accessToken(accessToken)
+                .accessToken(accessToken.getToken())
                 .refreshToken(refreshToken)
                 .build();
         new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
@@ -147,8 +152,8 @@ public class AuthenticationService {
         saveUserToken(user, newAccessToken, TokenType.ACCESS);
         saveUserToken(user, newRefreshToken, TokenType.REFRESH);
         authenticationResponse = AuthenticationResponse.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newAccessToken)
+                .accessToken(newAccessToken.getToken())
+                .refreshToken(newAccessToken.getToken())
                 .build();
       }
     }
@@ -166,7 +171,6 @@ public class AuthenticationService {
 
 //    user.getPasswordRecovery().add(passwordRecovery);
     userRepository.save(user);
-
     mailService.sendForgotMessage(email, token, originUrl);
   }
 
