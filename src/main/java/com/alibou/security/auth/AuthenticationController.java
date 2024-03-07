@@ -82,6 +82,8 @@ public class AuthenticationController {
     cookie.setMaxAge(0);
     cookie.setHttpOnly(true);
 
+    service.logout(refreshToken);
+
     response.addCookie(cookie);
     return new LogoutResponse("success");
   }

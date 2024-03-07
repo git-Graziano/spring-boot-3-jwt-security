@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `spn_token` (
     `TYPE` varchar(20) NOT NULL,
     `ISSUED_AT` datetime(6) NOT NULL,
     `EXPIRED_AT` datetime(6) NOT NULL,
-    `EXPIRED` boolean NOT NULL DEFAULT false,
+    `ALLOWED` boolean NOT NULL DEFAULT false,
     `USER_ID` bigint NOT NULL,
     PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

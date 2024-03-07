@@ -90,9 +90,13 @@ public class AuthenticationService {
               .user(user)
               .type(type)
               .token(token)
+              .allowed(true)
               .build();
     }
     else {
+
+      //TODO: check if the token is allowed
+
       // update existing token
       tokenEntity = optToken.get();
       tokenEntity.setToken(token);
@@ -165,4 +169,31 @@ public class AuthenticationService {
 
     mailService.sendForgotMessage(email, token, originUrl);
   }
+
+  public void logout(String token) {
+
+    //TODO: should be disallowed all the tokens with expiredAt after now
+
+    final var userEmail = jwtService.extractUsername(token);
+    if (userEmail != null) {
+      var user = this.userRepository.findByEmail(userEmail)
+              .orElseThrow();
+      var accesstoken = tokenRepository.findByUserAndType(user, TokenType.ACCESS);
+      if (accesstoken.isPresent()) {
+        var entity = accesstoken.get();
+        entity.setAllowed(false);
+        tokenRepository.save(entity);
+      }
+
+      var refreshToken = tokenRepository.findByUserAndType(user, TokenType.REFRESH);
+      if (refreshToken.isPresent()) {
+        var entity = refreshToken.get();
+        entity.setAllowed(false);
+        tokenRepository.save(entity);
+      }
+    }
+
+  }
+
 }
+

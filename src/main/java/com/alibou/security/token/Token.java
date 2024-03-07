@@ -35,8 +35,8 @@ public class Token {
   @Column(name = "EXPIRED_AT")
   private LocalDateTime expiredAt;
 
-  @Column(name = "EXPIRED")
-  private Boolean expired;
+  @Column(name = "ALLOWED")
+  private Boolean allowed;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
