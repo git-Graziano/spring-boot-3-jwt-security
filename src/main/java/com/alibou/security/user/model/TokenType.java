@@ -1,4 +1,4 @@
-package com.alibou.security.token;
+package com.alibou.security.user.model;
 
 public enum TokenType {
   ACCESS,

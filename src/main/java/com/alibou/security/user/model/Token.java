@@ -1,6 +1,5 @@
-package com.alibou.security.token;
+package com.alibou.security.user.model;
 
-import com.alibou.security.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

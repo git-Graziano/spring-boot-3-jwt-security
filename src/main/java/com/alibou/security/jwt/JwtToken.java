@@ -1,4 +1,4 @@
-package com.alibou.security.token;
+package com.alibou.security.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

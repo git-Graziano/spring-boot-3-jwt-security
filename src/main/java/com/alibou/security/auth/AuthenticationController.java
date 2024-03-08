@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
 )
 @RestController
 @RequestMapping("/api/v1/auth")
+@Log
 @RequiredArgsConstructor
 public class AuthenticationController {
 
@@ -72,19 +74,22 @@ public class AuthenticationController {
   public record LogoutResponse(String message){};
   @PostMapping("/logout")
   public LogoutResponse logout(
-          @CookieValue("refresh_token") String refreshToken,
+          @CookieValue(name = "refresh_token", required = false) String refreshToken,
           HttpServletResponse response
   ) {
-
+    log.info("logout in.");
     //TODO: service delete or expires tokens in db
+    if(refreshToken != null ) {
+      log.info("refresh token present");
+      Cookie cookie = new Cookie("refresh_token", null);
+      cookie.setMaxAge(0);
+      cookie.setHttpOnly(true);
+      cookie.setPath("/api");
 
-    Cookie cookie = new Cookie("refresh_token", null);
-    cookie.setMaxAge(0);
-    cookie.setHttpOnly(true);
-
-    service.logout(refreshToken);
-
-    response.addCookie(cookie);
+      service.logout(refreshToken);
+      response.addCookie(cookie);
+    }
+    log.info("logout out");
     return new LogoutResponse("success");
   }
 

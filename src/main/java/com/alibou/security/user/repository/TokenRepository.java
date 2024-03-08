@@ -1,6 +1,8 @@
-package com.alibou.security.token;
+package com.alibou.security.user.repository;
 
-import com.alibou.security.user.User;
+import com.alibou.security.user.model.Token;
+import com.alibou.security.user.model.TokenType;
+import com.alibou.security.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

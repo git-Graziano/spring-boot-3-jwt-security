@@ -1,6 +1,6 @@
-package com.alibou.security.user;
+package com.alibou.security.user.model;
 
-import com.alibou.security.token.Token;
+import com.alibou.security.user.repository.Authority;
 import jakarta.persistence.*;
 
 import java.util.Collection;

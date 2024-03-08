@@ -1,5 +1,7 @@
 package com.alibou.security.user;
 
+import com.alibou.security.user.model.User;
+import com.alibou.security.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;

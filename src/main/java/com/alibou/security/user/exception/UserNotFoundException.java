@@ -1,4 +1,4 @@
-package com.alibou.security.user;
+package com.alibou.security.user.exception;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String message) {

@@ -1,4 +1,4 @@
-package com.alibou.security.user;
+package com.alibou.security.user.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

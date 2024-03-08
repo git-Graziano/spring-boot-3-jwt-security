@@ -1,5 +1,6 @@
 package com.alibou.security.user;
 
+import com.alibou.security.user.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,5 @@
-package com.alibou.security.config;
+package com.alibou.security.jwt;
 
-import com.alibou.security.token.JwtToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

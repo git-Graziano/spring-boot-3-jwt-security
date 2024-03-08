@@ -1,8 +1,7 @@
-package com.alibou.security.config;
+package com.alibou.security.jwt;
 
-import com.alibou.security.token.TokenRepository;
-import com.alibou.security.token.TokenType;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.alibou.security.user.repository.TokenRepository;
+import com.alibou.security.user.model.TokenType;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -2,21 +2,22 @@ package com.alibou.security.auth;
 
 import com.alibou.security.auth.exception.AuthorityNotFoundException;
 import com.alibou.security.auth.exception.UserAlreadyRegisteredException;
-import com.alibou.security.config.JwtService;
+import com.alibou.security.jwt.JwtService;
 import com.alibou.security.email.MailService;
-import com.alibou.security.token.JwtToken;
-import com.alibou.security.token.Token;
-import com.alibou.security.token.TokenRepository;
-import com.alibou.security.token.TokenType;
-import com.alibou.security.user.User;
-import com.alibou.security.user.UserRepository;
-import com.alibou.security.user.AuthorityRepository;
+import com.alibou.security.jwt.JwtToken;
+import com.alibou.security.user.model.Token;
+import com.alibou.security.user.repository.TokenRepository;
+import com.alibou.security.user.model.TokenType;
+import com.alibou.security.user.model.User;
+import com.alibou.security.user.repository.UserRepository;
+import com.alibou.security.user.repository.AuthorityRepository;
 import com.alibou.security.user.PasswordRecovery;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,7 +31,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
-
+@Log
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -183,28 +184,33 @@ public class AuthenticationService {
 
   public void logout(String token) {
 
-    //TODO: should be disallowed all the tokens with expiredAt after now
+    try {
+      final var userEmail = jwtService.extractUsername(token);
+      if (userEmail != null) {
+        var user = this.userRepository.findByEmail(userEmail)
+                .orElseThrow();
+        var accesstoken = tokenRepository.findByUserAndType(user, TokenType.ACCESS);
+        if (accesstoken.isPresent()) {
+          var entity = accesstoken.get();
+          entity.setAllowed(false);
+          tokenRepository.save(entity);
+        }
 
-    final var userEmail = jwtService.extractUsername(token);
-    if (userEmail != null) {
-      var user = this.userRepository.findByEmail(userEmail)
-              .orElseThrow();
-      var accesstoken = tokenRepository.findByUserAndType(user, TokenType.ACCESS);
-      if (accesstoken.isPresent()) {
-        var entity = accesstoken.get();
-        entity.setAllowed(false);
-        tokenRepository.save(entity);
+        var refreshToken = tokenRepository.findByUserAndType(user, TokenType.REFRESH);
+        if (refreshToken.isPresent()) {
+          var entity = refreshToken.get();
+          entity.setAllowed(false);
+          tokenRepository.save(entity);
+        }
+        SecurityContextHolder.clearContext();
       }
-
-      var refreshToken = tokenRepository.findByUserAndType(user, TokenType.REFRESH);
-      if (refreshToken.isPresent()) {
-        var entity = refreshToken.get();
-        entity.setAllowed(false);
-        tokenRepository.save(entity);
-      }
-      SecurityContextHolder.clearContext();
+    }
+    catch (RuntimeException ex) {
+      // refresh token expired or malformed. Try to disallowed all expired tokens
+      log.warning("refresh token expired or malformed");
     }
 
+    //TODO: should be disallowed all the tokens with expiredAt after now
   }
 
 }
