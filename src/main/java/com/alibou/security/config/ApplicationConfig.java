@@ -1,11 +1,9 @@
 package com.alibou.security.config;
 
-import com.alibou.security.auditing.ApplicationAuditAware;
 import com.alibou.security.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,11 +33,6 @@ public class ApplicationConfig {
     authProvider.setUserDetailsService(userDetailsService());
     authProvider.setPasswordEncoder(passwordEncoder());
     return authProvider;
-  }
-
-  @Bean
-  public AuditorAware<Integer> auditorAware() {
-    return new ApplicationAuditAware();
   }
 
   @Bean
