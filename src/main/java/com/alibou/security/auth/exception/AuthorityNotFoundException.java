@@ -1,4 +1,4 @@
-package com.alibou.security.auth;
+package com.alibou.security.auth.exception;
 
 public class AuthorityNotFoundException extends RuntimeException {
     public AuthorityNotFoundException(String notFound) {

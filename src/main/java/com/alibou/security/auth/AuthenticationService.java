@@ -1,5 +1,7 @@
 package com.alibou.security.auth;
 
+import com.alibou.security.auth.exception.AuthorityNotFoundException;
+import com.alibou.security.auth.exception.UserAlreadyRegisteredException;
 import com.alibou.security.config.JwtService;
 import com.alibou.security.email.MailService;
 import com.alibou.security.token.JwtToken;
@@ -19,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,7 +47,11 @@ public class AuthenticationService {
 
     var role = authorityRepository.findByName(request.role()).orElseThrow(() -> new AuthorityNotFoundException("Not found"));
 
-    //TODO: check for email duplication
+    // check for email duplication
+    var isUserIsAlreadyRegistered = userRepository.findByEmail(request.email());
+    if(isUserIsAlreadyRegistered.isPresent()) {
+            throw new UserAlreadyRegisteredException("User already registered");
+    }
     var user = User.builder()
         .firstname(request.firstname())
         .lastname(request.lastname())
@@ -103,8 +110,8 @@ public class AuthenticationService {
       // update existing token
       tokenEntity = optToken.get();
       tokenEntity.setToken(token.getToken());
-      token.setIssuedAt(token.getIssuedAt());
-      token.setExpiredAt(token.getExpiredAt());
+      tokenEntity.setIssuedAt(token.getIssuedAt());
+      tokenEntity.setExpiredAt(token.getExpiredAt());
     }
     tokenRepository.save(tokenEntity);
   }
@@ -195,6 +202,7 @@ public class AuthenticationService {
         entity.setAllowed(false);
         tokenRepository.save(entity);
       }
+      SecurityContextHolder.clearContext();
     }
 
   }

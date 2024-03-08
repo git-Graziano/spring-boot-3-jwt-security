@@ -2,6 +2,7 @@ package com.alibou.security.config;
 
 import com.alibou.security.token.TokenRepository;
 import com.alibou.security.token.TokenType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -57,8 +58,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       response.setStatus(HttpStatus.UNAUTHORIZED.value());
       return;
     }
+    catch (RuntimeException ex) {
+      log.warning("Error extracting user from JWT: token malformed or not valid");
+      response.setStatus(HttpStatus.BAD_REQUEST.value());
+      return;
+    }
     if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-      UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+      UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
       var isTokenValid = tokenRepository.findByTokenAndType(jwt, TokenType.ACCESS)
           .map(t -> !t.getExpiredAt().isBefore(LocalDateTime.now()) && t.getAllowed())
           .orElse(false);
