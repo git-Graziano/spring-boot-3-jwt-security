@@ -78,7 +78,7 @@ public class AuthenticationController {
     return new RefreshTokenResponse(auth.getAccessToken());
   }
 
-  public record LogoutResponse(String message){};
+  public record LogoutResponse(String message){}
   @PostMapping("/logout")
   public LogoutResponse logout(
           @CookieValue(name = "refresh_token", required = false) String refreshToken,
