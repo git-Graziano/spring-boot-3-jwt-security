@@ -28,3 +28,14 @@ application:
         expiration: 600 # - 10 min - 3600000 # 1 hour - 604800000 # 7 days
   frontend:
     default-url: boh
+
+logging:
+  #  file:
+  #    path: /var/logs/
+  #    file: TacoCloud.log
+  level:
+    root: INFO
+    org:
+      springframework:
+        security: INFO
+      hibernate: INFO

@@ -2,6 +2,7 @@ package com.alibou.security.user;
 
 import com.alibou.security.user.model.User;
 import com.alibou.security.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +13,7 @@ import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final PasswordEncoder passwordEncoder;

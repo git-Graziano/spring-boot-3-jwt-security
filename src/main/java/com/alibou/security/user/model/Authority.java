@@ -1,4 +1,4 @@
-package com.alibou.security.user.repository;
+package com.alibou.security.user.model;
 
 import com.alibou.security.user.model.User;
 import jakarta.persistence.*;
@@ -29,7 +29,7 @@ public class Authority {
   @Column(name = "DESCRIPTION")
   private String description;
 
-  @ManyToMany(mappedBy = "roles")
+  @ManyToMany(mappedBy = "authorities")
   private Set<User> users = new HashSet<>();
 
 }

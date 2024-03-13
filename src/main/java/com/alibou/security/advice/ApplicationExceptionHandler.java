@@ -3,6 +3,7 @@ package com.alibou.security.advice;
 import com.alibou.security.auth.exception.UserAlreadyRegisteredException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,6 +29,13 @@ public class ApplicationExceptionHandler {
         Map<String, String> errorMap = new HashMap<>();
         errorMap.put("message", ex.getMessage());
         return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Map<String, String>> authenticationException(AuthenticationException ex) {
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("message", "Username o password non corretta");
+        return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.UNAUTHORIZED);
     }
 
 }

@@ -41,7 +41,9 @@ CREATE TABLE IF NOT EXISTS `spn_token` (
 #
 ALTER TABLE spn_user ADD CONSTRAINT `user_user_authority` FOREIGN KEY (`ID`)
     REFERENCES `spn_user_authority` (`USER_ID`) ON DELETE CASCADE;
-ALTER TABLE spn_user ADD CONSTRAINT `user_token` FOREIGN KEY (`ID`)
-    REFERENCES `spn_user_authority` (`USER_ID`) ON DELETE CASCADE;
+ALTER TABLE spn_authority ADD CONSTRAINT `authority_user_authority` FOREIGN KEY (`ID`)
+    REFERENCES `spn_user_authority` (`AUTHORITY_ID`) ON DELETE CASCADE;
+ALTER TABLE spn_token ADD CONSTRAINT `token_user` FOREIGN KEY (`USER_ID`)
+    REFERENCES `spn_user` (`ID`) ON DELETE CASCADE;
 
 

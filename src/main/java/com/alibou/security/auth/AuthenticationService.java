@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.UUID;
 @Log
@@ -51,6 +53,7 @@ public class AuthenticationService {
     // check for email duplication
     var isUserIsAlreadyRegistered = userRepository.findByEmail(request.email());
     if(isUserIsAlreadyRegistered.isPresent()) {
+      var t = isUserIsAlreadyRegistered.get().getAuthorities().size();
             throw new UserAlreadyRegisteredException("User already registered");
     }
     var user = User.builder()
@@ -58,9 +61,10 @@ public class AuthenticationService {
         .lastname(request.lastname())
         .email(request.email())
         .password(passwordEncoder.encode(request.password()))
-        .roles(Set.of(role))
+        .authorities(Set.of(role))
         .build();
     var savedUser = userRepository.save(user);
+
     return new RegisterResponse(
             savedUser.getFirstname(),
             savedUser.getLastname(),
@@ -82,7 +86,7 @@ public class AuthenticationService {
     saveUserToken(user, accessToken, TokenType.ACCESS);
     saveUserToken(user, refreshToken, TokenType.REFRESH);
     return AuthenticationResponse.builder()
-        .accessToken(accessToken.getToken())
+            .accessToken(accessToken.getToken())
             .refreshToken(refreshToken.getToken())
         .build();
   }
@@ -113,6 +117,7 @@ public class AuthenticationService {
       tokenEntity.setToken(token.getToken());
       tokenEntity.setIssuedAt(token.getIssuedAt());
       tokenEntity.setExpiredAt(token.getExpiredAt());
+      tokenEntity.setAllowed(true);
     }
     tokenRepository.save(tokenEntity);
   }
@@ -161,7 +166,7 @@ public class AuthenticationService {
         saveUserToken(user, newRefreshToken, TokenType.REFRESH);
         authenticationResponse = AuthenticationResponse.builder()
                 .accessToken(newAccessToken.getToken())
-                .refreshToken(newAccessToken.getToken())
+                .refreshToken(newRefreshToken.getToken())
                 .build();
       }
     }
@@ -206,7 +211,7 @@ public class AuthenticationService {
       }
     }
     catch (RuntimeException ex) {
-      // refresh token expired or malformed. Try to disallowed all expired tokens
+      // refresh token expired or malformed. Try to disallow all expired tokens
       log.warning("refresh token expired or malformed");
     }
 

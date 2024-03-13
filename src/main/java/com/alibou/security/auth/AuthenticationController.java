@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,10 @@ import java.io.IOException;
 public class AuthenticationController {
 
   private final AuthenticationService service;
+
+  @Value("${application.security.jwt.refresh.expiration}")
+  private long refreshJwtExpiration;
+
 
   @PostMapping("/register")
   public ResponseEntity<RegisterResponse> register(
@@ -44,9 +49,9 @@ public class AuthenticationController {
   ) {
     var auth = service.authenticate(request);
     Cookie cookie = new Cookie("refresh_token", auth.getRefreshToken());
-    cookie.setMaxAge(3600);
+    cookie.setMaxAge((int)refreshJwtExpiration);
     cookie.setHttpOnly(true);
-    cookie.setPath("/api");
+    cookie.setPath("/");
 
     response.addCookie(cookie);
 
@@ -56,7 +61,7 @@ public class AuthenticationController {
   public record RefreshTokenResponse(@JsonProperty("access_token") String token){}
   @PostMapping("/refresh-token")
   public RefreshTokenResponse refreshToken(
-          @CookieValue("refresh_token") String refreshToken,
+          @CookieValue(value = "refresh_token") String refreshToken,
           HttpServletRequest request,
           HttpServletResponse response
   ) throws IOException {
@@ -64,9 +69,11 @@ public class AuthenticationController {
     var auth = service.refreshToken(refreshToken, request);
 
     Cookie cookie = new Cookie("refresh_token", auth.getRefreshToken());
-    cookie.setMaxAge(3600);
+    cookie.setMaxAge((int)refreshJwtExpiration);
     cookie.setHttpOnly(true);
-    cookie.setPath("/api");
+    cookie.setPath("/");
+
+    response.addCookie(cookie);
 
     return new RefreshTokenResponse(auth.getAccessToken());
   }
@@ -84,7 +91,7 @@ public class AuthenticationController {
       Cookie cookie = new Cookie("refresh_token", null);
       cookie.setMaxAge(0);
       cookie.setHttpOnly(true);
-      cookie.setPath("/api");
+      cookie.setPath("/");
 
       service.logout(refreshToken);
       response.addCookie(cookie);

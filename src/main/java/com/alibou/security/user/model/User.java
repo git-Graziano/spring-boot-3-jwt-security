@@ -1,23 +1,18 @@
 package com.alibou.security.user.model;
 
-import com.alibou.security.user.repository.Authority;
 import jakarta.persistence.*;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Data
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -45,10 +40,10 @@ public class User implements UserDetails {
   @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinTable(
           name = "spn_user_authority",
-          joinColumns = { @JoinColumn(name = "user_id") },
-          inverseJoinColumns = { @JoinColumn(name = "authority_id") }
+          joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") },
+          inverseJoinColumns = { @JoinColumn(name = "authority_id", referencedColumnName = "id") }
   )
-  private Set<Authority> roles = new HashSet<>();
+  private Collection<Authority> authorities;
 
   @OneToMany(mappedBy = "user")
   private List<Token> tokens;
@@ -58,7 +53,7 @@ public class User implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return getRoles()
+    return authorities
             .stream()
             .map(permission -> new SimpleGrantedAuthority(permission.getName()))
             .collect(Collectors.toList());
