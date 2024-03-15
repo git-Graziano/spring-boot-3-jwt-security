@@ -3,10 +3,10 @@
 #
 CREATE TABLE IF NOT EXISTS `spn_user` (
     `ID` bigint NOT NULL AUTO_INCREMENT,
-    `FIRST_NAME` varchar(100) DEFAULT NULL,
+    `FIRST_NAME` varchar(100) NOT NULL,
     `LAST_NAME` varchar(100) NOT NULL,
     `EMAIL` varchar(200) NOT NULL,
-    `PASSWORD` varchar(60) DEFAULT NULL,
+    `PASSWORD` varchar(60) NOT NULL,
     UNIQUE KEY `EMAIL` (`EMAIL`),
     PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS `spn_user` (
 CREATE TABLE IF NOT EXISTS `spn_authority` (
     `ID` bigint NOT NULL AUTO_INCREMENT,
     `NAME` varchar(45) NOT NULL,
-    UNIQUE KEY `EMAIL` (`NAME`),
     `DESCRIPTION` varchar(45) NOT NULL,
     PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -37,13 +36,39 @@ CREATE TABLE IF NOT EXISTS `spn_token` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 #
+# - index
+#
+ALTER TABLE `spn_token`
+    ADD INDEX `token_user_idx` (`USER_ID` ASC) VISIBLE;
+
+ALTER TABLE `spn_user_authority`
+    ADD INDEX `user_authority_authority_idx` (`AUTHORITY_ID` ASC) VISIBLE;
+
+#
 # - foreign keys
 #
-ALTER TABLE spn_user ADD CONSTRAINT `user_user_authority` FOREIGN KEY (`ID`)
-    REFERENCES `spn_user_authority` (`USER_ID`) ON DELETE CASCADE;
-ALTER TABLE spn_authority ADD CONSTRAINT `authority_user_authority` FOREIGN KEY (`ID`)
-    REFERENCES `spn_user_authority` (`AUTHORITY_ID`) ON DELETE CASCADE;
-ALTER TABLE spn_token ADD CONSTRAINT `token_user` FOREIGN KEY (`USER_ID`)
-    REFERENCES `spn_user` (`ID`) ON DELETE CASCADE;
+;
+ALTER TABLE `spn_token`
+    ADD CONSTRAINT `token_user`
+        FOREIGN KEY (`USER_ID`)
+            REFERENCES `spn_user` (`ID`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION;
+
+ALTER TABLE `spn_user_authority`
+    ADD CONSTRAINT `user_authority_user`
+        FOREIGN KEY (`USER_ID`)
+            REFERENCES `spn_user` (`ID`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION;
+
+
+ALTER TABLE `spn_user_authority`
+    ADD CONSTRAINT `user_authority_authority`
+        FOREIGN KEY (`AUTHORITY_ID`)
+            REFERENCES `spn_authority` (`ID`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION;
+
 
 
